@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_inout_wizard" model="ir.ui.view">
+        <field name="name">bk.stock.inout.wizard.form</field>
+        <field name="model">bk.stock.inout.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Stock In/Out Report">
+                <group>
+                    <group string="Reporting Period">
+                        <field name="date_start" placeholder="Start Date"/>
+                        <field name="date_end" placeholder="End Date"/>
+                    </group>
+                    <group>
+                        <field name="location_ids" widget="many2many_tags" placeholder="Inventory Location"/>
+                        <field name="categ_ids" widget="many2many_tags" placeholder="Product category "/>
+                        <field name="product_ids" widget="many2many_tags"/>
+                    </group>
+
+                    <group>
+                      <separator string="Report Type"/>
+                            <div>
+                                <field name="report_type" widget="radio"/>
+                            </div>
+                    </group>
+                    <group>
+                            <separator string="Doc. Status"/>
+                            <div>
+                                <field name="state" widget="radio"/>
+                            </div>
+                    </group>
+            </group>
+
+                <footer>
+                    <button string="Export Excel" type="object" name="action_export_excel" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard -->
+    <record id="bk_action_stock_inout_wizard" model="ir.actions.act_window">
+        <field name="name">Inventory Flow Report</field>
+        <field name="res_model">bk.stock.inout.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu entry under Inventory > Reporting -->
+    <menuitem id="bk_menu_stock_inout_report"
+              name="Stock Balance"
+              parent="stock.menu_warehouse_report"
+              action="bk_action_stock_inout_wizard"
+              sequence="30"/>
+</odoo>
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_account_account_form_inherit_cogs_inventory" model="ir.ui.view">
+        <field name="name">account.account.form.inherit.cogs.inventory</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Insert AFTER the first group inside the accounting page -->
+           <xpath expr="//notebook" position="inside">
+                <page string="COGS &amp; Inventory Settings">
+                    <group>
+                        <field name="is_cogs_account"/>
+                        <field name="is_inventory_account"/>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
