@@ -438,14 +438,15 @@ class StockInOutReportController(http.Controller):
             domain += ["|", ("location_id", "in", wizard.location_ids.ids),
                        ("location_dest_id", "in", wizard.location_ids.ids)]
 
-        # include adjustments OR posted accounting moves
-        domain = domain + [
-            "|",
-            ("stock_move_id.reference", "ilike", "Product Quantity"),
-            "&",
-            ("account_move_id", "!=", False),
-            ("account_move_id.state", "=", "posted"),
-        ]
+        # # include adjustments OR posted accounting moves
+        # domain = domain
+        # # [
+        # #     "|",
+        # #     ("stock_move_id.reference", "ilike", "Product Quantity"),
+        # #     "&",
+        # #     ("account_move_id", "!=", False),
+        # #     ("account_move_id.state", "=", "posted"),
+        # # ]
 
         moves = request.env["stock.valuation.layer"].sudo().search(domain)
 
@@ -582,7 +583,7 @@ class StockInOutReportController(http.Controller):
             "Cogs Value",
             "Avg. Cost",
             "Inventory Acc.",
-            "Cogs. Acc",
+            "Cogs. Acc (Default)",
             "Income Acc.(Default)",
         ]
 
@@ -615,10 +616,11 @@ class StockInOutReportController(http.Controller):
                 avg_cost,
                 d["stock_valuation_account_id"],
                 d["stock_cogs_account_id"],
-                d["stock_income_account_id"]
+                d["stock_income_account_id"],
+
+                # d["gains"], d["return_sup"],
+                # d["losses"], d["return_cust"],
+                # d["purchased"]
             ])
-            # d["gains"], d["return_sup"],
-            # d["losses"], d["return_cust"],
-            # d["purchased"],
 
         return headers, lines
