@@ -474,7 +474,7 @@ class StockInOutReportController(http.Controller):
             "return_cust": 0.0,
             "losses": 0.0,
             "gains": 0.0,
-
+            "avg_sales_price": 0.0,
             "stock_valuation": 0.0,  # incoming value
             "cogs_value": 0.0,  # outgoing value
 
@@ -499,6 +499,8 @@ class StockInOutReportController(http.Controller):
             d = agg[prod.id]
 
             d["product"] = prod.display_name
+            avg_price = self.get_avg_selling_price(mv.product_id, wizard.date_start, wizard.date_end, wizard.pos_config_ids.ids)
+            d["avg_sales_price"] = avg_price if avg_price > 0 else mv.product_id.list_price
             d["status"] = prod.active
             d["category"] = prod.categ_id.display_name
 
@@ -582,6 +584,7 @@ class StockInOutReportController(http.Controller):
             "Valuation",
             "Cogs Value",
             "Avg. Cost",
+            "Selling Price",
             "Inventory Acc.",
             "Cogs. Acc (Default)",
             "Income Acc.(Default)",
@@ -615,6 +618,7 @@ class StockInOutReportController(http.Controller):
                 # forecast_value,
                 d["cogs_value"],
                 avg_cost,
+                d["avg_sales_price"],
                 d["stock_valuation_account_id"],
                 d["stock_cogs_account_id"],
                 d["stock_income_account_id"],
@@ -625,3 +629,46 @@ class StockInOutReportController(http.Controller):
             ])
 
         return headers, lines
+
+    def get_avg_selling_price(self, product, date_from, date_to, excluded_pos_config_ids=None):
+        """
+        :return: float (average selling price)
+        """
+        excluded_pos_config_ids = excluded_pos_config_ids or []
+        query = """
+            SELECT
+                CASE
+                    WHEN COALESCE(SUM(qty), 0) = 0 THEN 0
+                    ELSE COALESCE(SUM(revenue), 0) / SUM(qty)
+                END AS avg_price
+            FROM (
+                -- Sale Orders
+                SELECT
+                    SUM(sol.price_subtotal) AS revenue,
+                    SUM(sol.product_uom_qty) AS qty
+                FROM sale_order_line sol
+                JOIN sale_order so ON so.id = sol.order_id
+                WHERE sol.product_id = %s
+                  AND so.date_order BETWEEN %s AND %s
+                  AND so.state IN ('sale', 'done')
+                  AND sol.product_uom_qty > 0
+
+                UNION ALL
+
+                -- POS Orders (exclude specific POS configs)
+                SELECT
+                    SUM(pol.price_subtotal) AS revenue,
+                    SUM(pol.qty) AS qty
+                FROM pos_order_line pol
+                JOIN pos_order po ON po.id = pol.order_id
+                WHERE pol.product_id = %s
+                  AND po.date_order BETWEEN %s AND %s
+                  AND po.state IN ('paid', 'done', 'invoiced')
+                  AND pol.qty > 0
+                  AND po.config_id != ALL(%s)
+            ) combined
+        """
+
+        request.env.cr.execute(query, (product.id, date_from, date_to, product.id, date_from, date_to, excluded_pos_config_ids))
+        row = request.env.cr.fetchone()
+        return float(row[0]) if row and row[0] is not None else 0.0

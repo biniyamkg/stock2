@@ -8,7 +8,7 @@ class StockInOutWizard(models.TransientModel):
     date_start = fields.Date("Start Date", required=True)
     date_end = fields.Date("End Date", required=True)
     location_ids = fields.Many2many("stock.location", string="Locations", domain=[('usage', '=', 'internal')])
-
+    pos_config_ids = fields.Many2many("pos.config", string="Excluded PoS")
     categ_ids = fields.Many2many("product.category", string="Product Categories")
     product_ids = fields.Many2many("product.product", string="Products")
     state = fields.Selection([

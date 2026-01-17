@@ -11,6 +11,7 @@
                         <field name="date_end" placeholder="End Date"/>
                     </group>
                     <group>
+                         <field name="pos_config_ids" widget="many2many_tags" placeholder="PoS to exclude"/>
                         <field name="location_ids" widget="many2many_tags" placeholder="Inventory Location"/>
                         <field name="categ_ids" widget="many2many_tags" placeholder="Product category "/>
                         <field name="product_ids" widget="many2many_tags"/>

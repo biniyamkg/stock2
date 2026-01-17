@@ -12,7 +12,7 @@ This module provides a custom stock movement analysis report for Odoo.
     "website": "https://yourcompany.com",
     "category": "Inventory/Reporting",
     "license": "LGPL-3",
-    "depends": ["stock", "web", "account"],
+    "depends": ["stock", "web", "account", "point_of_sale"],
     "data": [
         "security/ir.model.access.csv",
         "wizard/bk_stock_inout_wizard_view.xml",

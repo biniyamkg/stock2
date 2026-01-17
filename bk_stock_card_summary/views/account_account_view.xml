@@ -12,6 +12,7 @@
                     <group>
                         <field name="is_cogs_account"/>
                         <field name="is_inventory_account"/>
+
                     </group>
                 </page>
             </xpath>
